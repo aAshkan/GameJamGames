@@ -1,0 +1,479 @@
+/*------------------- 
+left side player entity
+-------------------------------- */
+
+var getPositionX;
+var getPositionY;
+
+
+game.LeftPlayerEntity = me.ObjectEntity.extend({
+ 
+    /* -----
+ 
+    constructor
+ 
+    ------ */
+	useWASD: true,
+ 
+    init: function(x, y, settings) {
+        // call the constructor
+        this.parent(x, y, settings);
+ 
+        // set the default horizontal & vertical speed (accel vector)
+        this.setVelocity(3, 3);
+		this.gravity = 0;
+ 
+		// adjust the bounding box
+		this.updateColRect(2,28,2,28);
+		// 2,28,2,28
+ 
+        // set the display to follow our position on both axis
+        me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
+ 
+        // make it collidable
+        this.collidable = true;
+        // make it a enemy object
+        this.type = me.game.ACTION_OBJECT;
+    },
+ 
+    /* -----
+ 
+    update the player pos
+ 
+    ------ */
+    update: function()
+	{
+		var pushX;
+		var pushY;
+	
+		if (me.input.isKeyPressed('A'))
+		{
+			// flip the sprite on horizontal axis
+			this.flipX(true);
+			// update the entity velocity
+			pushX = -this.accel.x * me.timer.tick;
+			this.vel.x += pushX;
+		}
+		else if (me.input.isKeyPressed('D'))
+		{
+			// unflip the sprite
+			this.flipX(false);
+			// update the entity velocity
+			pushX = this.accel.x * me.timer.tick;
+			this.vel.x += pushX;
+		}
+		else 
+		{
+			this.vel.x = pushX = 0;
+			
+		}
+		
+		if (me.input.isKeyPressed('W'))
+		{
+			// update the entity velocity
+			pushY = -this.accel.y * me.timer.tick;
+			this.vel.y += pushY;
+		}
+		else if (me.input.isKeyPressed('S'))
+		{
+			// update the entity velocity
+			pushY = this.accel.y * me.timer.tick;
+			this.vel.y += pushY;
+		}
+		else 
+		{
+			this.vel.y = pushY = 0;
+		}
+ 
+		// check for collision
+		var res = me.game.world.collide(this);
+	 
+		if (res && res.obj.type == me.game.ACTION_OBJECT)
+		{
+			
+			var direction = false;
+			if  (   ( res.y < 0 ) && me.input.isKeyPressed('W')  ||
+					( res.y > 0) && me.input.isKeyPressed('S') || 
+					( res.x > 0) && me.input.isKeyPressed('D') || 
+					( res.x < 0) && me.input.isKeyPressed('A') 
+				)
+				{
+					direction = true;
+     			}
+     		if (direction )
+     		{
+				this.vel.y -= 2 * pushY;
+	     		this.vel.x -= 2 * pushX;
+			}
+					
+				
+			
+			
+			
+			
+			
+		}
+ 
+        // check & update player movement
+        this.updateMovement();
+ 
+        // update animation if necessary
+        if (this.vel.x!=0 || this.vel.y!=0) {
+            // update object animation
+            this.parent();
+            return true;
+        }
+         
+        // else inform the engine we did not perform
+        // any update (e.g. position, animation)
+        return false;
+    }
+});
+
+/*------------------- 
+right side player entity
+-------------------------------- */
+game.RightPlayerEntity = me.ObjectEntity.extend({
+ 
+    /* -----
+ 
+    constructor
+ 
+    ------ */
+ 
+    init: function(x, y, settings) {
+        // call the constructor
+        this.parent(x, y, settings);
+ 
+        // set the default horizontal & vertical speed (accel vector)
+        this.setVelocity(3, 3);
+		this.gravity = 0;
+ 
+ 
+		// adjust the bounding box
+		// x, w, y, h
+		this.updateColRect(2,28,2,28);
+		// 2,28,2,28
+ 
+        // set the display to follow our position on both axis
+        me.game.viewport.follow(this.pos, me.game.viewport.AXIS.BOTH);
+ 
+        // make it collidable
+        this.collidable = true;
+        // make it a enemy object
+        this.type = me.game.ACTION_OBJECT;
+    },
+ 
+    /* -----
+ 
+    update the player pos
+ 
+    ------ */
+    update: function()
+	{
+		var pushX;
+		var pushY;
+ 
+        if (me.input.isKeyPressed('left'))
+		{
+            // flip the sprite on horizontal axis
+            this.flipX(true);
+            // update the entity velocity
+			pushX = -this.accel.x * me.timer.tick;
+            this.vel.x += pushX;
+        }
+		else if (me.input.isKeyPressed('right'))
+		{
+            // unflip the sprite
+            this.flipX(false);
+            // update the entity velocity
+			pushX = this.accel.x * me.timer.tick;
+            this.vel.x += pushX;
+        }
+		else 
+		{
+            this.vel.x = pushX = 0;
+        }
+		
+		if (me.input.isKeyPressed('up'))
+		{
+            // update the entity velocity
+			pushY = -this.accel.y * me.timer.tick;
+            this.vel.y += pushY;
+        }
+		else if (me.input.isKeyPressed('down'))
+		{
+            // update the entity velocity
+			pushY = this.accel.y * me.timer.tick;
+            this.vel.y += pushY;
+        }
+		else 
+		{
+            this.vel.y = pushY = 0;
+        }
+ 
+		// check for collision
+		var res = me.game.world.collide(this);
+		
+	 
+		if (res && res.obj.type == me.game.ACTION_OBJECT)
+		{
+			var direction = false;
+			if  (   ( res.y < 0 ) && me.input.isKeyPressed('up')  ||
+					( res.y > 0) && me.input.isKeyPressed('down') || 
+					( res.x > 0) && me.input.isKeyPressed('right') || 
+					( res.x < 0) && me.input.isKeyPressed('left') )
+				{
+					direction = true;
+     			}
+     		if (direction )
+     		{
+				this.vel.y -= 2 * pushY;
+	     		this.vel.x -= 2 * pushX;
+			}
+			
+		}
+		
+		
+ 
+        // check & update player movement
+        this.updateMovement();
+      
+ 
+        // update animation if necessary
+        if (this.vel.x!=0 || this.vel.y!=0) {
+            // update object animation
+            this.parent();
+            return true;
+        }
+         
+      //   this.vel.x = tempX;
+	//this.vel.y = tempY;
+        // else inform the engine we did not perform
+        // any update (e.g. position, animation)
+        return false;
+    }
+ 
+ 	
+});
+
+/*----------------
+ a Coin entity
+------------------------ */
+game.CoinEntity = me.CollectableEntity.extend({
+    // extending the init function is not mandatory
+    // unless you need to add some extra initialization
+    init: function(x, y, settings) {
+        // call the parent constructor
+        this.parent(x, y, settings);
+    },
+ 
+    // this function is called by the engine, when
+    // an object is touched by something (here collected)
+    onCollision: function() {
+        // do something when collected
+ 
+        // make sure it cannot be collected "again"
+        this.collidable = false;
+    //  this.collidable = true;
+        // remove it
+        me.game.remove(this);
+    }
+ 
+});
+
+/*----------------
+ a talk box entity
+------------------------ */
+game.TalkEntity = me.ObjectEntity.extend({	
+    // extending the init function is not mandatory
+    // unless you need to add some extra initialization
+    init: function(x, y, settings) {
+        // call the parent constructor
+        this.parent(x, y, settings);
+		
+		this.updateColRect(0, 96, 0, 96);
+ 
+        // make it collidable
+        this.collidable = true;
+		//alert("test");
+		// make it invisible
+		this.myAlpha = 0;
+    },
+	
+    update: function()
+	{
+		var res = me.game.collide(this);
+		//console.log("this.getOpacity() = " + this.getOpacity());
+		
+		if(res){
+			if (   me.input.isKeyPressed('right')     ||  me.input.isKeyPressed('left')|| 
+			 me.input.isKeyPressed('up')||  me.input.isKeyPressed('down') )
+			{	 
+				this.myAlpha = 1.0;
+				//this.pos.y += 10;
+			}
+			
+				
+		}
+		//confirm("test3");
+		else
+			this.myAlpha = 0.0;
+	},
+
+	draw : function(context)
+	{
+	   // save the previous value
+	   var local_alpha = context.globalAlpha;
+	   // semi transparency
+	   context.globalAlpha = this.myAlpha;
+	   // parent draw function
+	   this.parent(context);
+	   // restore previous value
+	   context.globalAlpha = local_alpha;
+	}
+});
+
+
+game.TalkEntity = me.ObjectEntity.extend({	
+    // extending the init function is not mandatory
+    // unless you need to add some extra initialization
+    init: function(x, y, settings) {
+        // call the parent constructor
+        this.parent(x, y, settings);
+		
+		this.updateColRect(0, 96, 0, 96);
+ 
+        // make it collidable
+        this.collidable = true;
+		//alert("test");
+		// make it invisible
+		this.myAlpha = 0;
+    },
+	
+    update: function()
+	{
+		var res = me.game.collide(this);
+		//console.log("this.getOpacity() = " + this.getOpacity());
+		
+		if(res){
+			if (   me.input.isKeyPressed('right')     ||  me.input.isKeyPressed('left')|| 
+			 me.input.isKeyPressed('up')||  me.input.isKeyPressed('down') )
+			{	 
+				this.myAlpha = 1.0;
+				//this.pos.y += 10;
+			}
+			
+				
+		}
+		//confirm("test3");
+		else
+			this.myAlpha = 0.0;
+	},
+
+	draw : function(context)
+	{
+	   // save the previous value
+	   var local_alpha = context.globalAlpha;
+	   // semi transparency
+	   context.globalAlpha = this.myAlpha;
+	   // parent draw function
+	   this.parent(context);
+	   // restore previous value
+	   context.globalAlpha = local_alpha;
+	}
+});
+
+/* --------------------------
+an enemy Entity
+------------------------ 
+game.EnemyEntity = me.ObjectEntity.extend(
+{
+    init: function(x, y, settings) { 
+        // call the parent constructor
+        this.parent(x, y, settings);
+ 
+        this.startX = x;
+        this.endX = x + settings.width - settings.spritewidth;
+        // size of sprite
+ 
+        // make him start from the right
+        this.pos.x = x + settings.width - settings.spritewidth;
+        this.walkLeft = true;
+ 
+        // walking & jumping speed
+        this.setVelocity(1, 1);
+		this.gravity = 0;
+ 
+        // make it collidable
+        this.collidable = true;
+		
+		this.myAlpha = 1.0;
+		
+        // make it a enemy object
+        this.type = me.game.ENEMY_OBJECT;
+    },
+ 
+    // call by the engine when colliding with another object
+    // obj parameter corresponds to the other object (typically the player) touching this one
+    onCollision: function(res, obj)
+	{
+        if (this.alive)
+		{
+        }
+    },
+ 
+    // manage the enemy movement
+    update: function()
+	{
+        // do nothing if not in viewport
+        if (!this.inViewport)
+            return false;
+ 
+        if (this.alive)
+		{
+            if (this.walkLeft && this.pos.x <= this.startX)
+			{
+                this.walkLeft = false;
+            }
+			else if (!this.walkLeft && this.pos.x >= this.endX)
+			{
+                this.walkLeft = true;
+            }
+			
+            // make it walk
+            this.flipX(this.walkLeft);
+            this.vel.x += (this.walkLeft) ? -this.accel.x * me.timer.tick : this.accel.x * me.timer.tick;
+        }
+		else
+		{
+            this.vel.x = 0;
+        }
+		
+        // check and update movement
+        this.updateMovement();
+         
+        // update animation if necessary
+        if (this.vel.x!=0 || this.vel.y!=0) {
+            // update object animation
+            this.parent();
+            return true;
+        }
+        return false;
+    },
+
+	draw : function(context)
+	{
+	   // save the previous value
+	   var local_alpha = context.globalAlpha;
+	   
+	   // semi transparency
+	   context.globalAlpha = this.myAlpha;
+	   
+	   // parent draw function
+	   this.parent(context);
+	   
+	   // restore previous value
+	   context.globalAlpha = local_alpha;
+	}
+});*/
